@@ -1,7 +1,7 @@
 # HOW TO USE
 ``` shell
 git clone https://github.com/a1vin-tian/golang.git
-
+git chekcout jike001
 make build 
 
 export VERSION=1.0; ./bin/httpserver 
