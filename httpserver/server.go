@@ -26,6 +26,10 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 }
 
 func helloHand(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		w.WriteHeader(404)
+		return
+	}
 	for k, v := range r.Header {
 		for _, s := range v {
 			w.Header().Add(k, s)
