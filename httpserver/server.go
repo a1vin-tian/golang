@@ -89,17 +89,20 @@ func nullPointer() *WebServer {
 	return nil
 }
 
-
 // Logs incoming requests.
 func Logger(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		o := &responseObserver{ResponseWriter: w}
 		defer func(o *responseObserver) {
 			if p := recover(); p != nil {
-				glog.Info(p)
+				glog.Error(p)
 				o.WriteHeader(500)
 			}
-			glog.Infof("[URI:%s][ClientIP:%s][Status:%d]", r.URL.Path, ClientIP(r), o.status)
+			if o.status >= 400 {
+				glog.Errorf("[URI:%s][ClientIP:%s][Status:%d]", r.URL.Path, ClientIP(r), o.status)
+			} else {
+				glog.Infof("[URI:%s][ClientIP:%s][Status:%d]", r.URL.Path, ClientIP(r), o.status)
+			}
 		}(o)
 		o.status = 200
 		h.ServeHTTP(o, r)
