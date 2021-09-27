@@ -68,6 +68,7 @@ func NewWebServer(p WebServerConfig) *WebServer {
 	mux.HandleFunc("/", helloHand)
 	mux.HandleFunc("/healthz", healthz)
 	mux.HandleFunc("/401", badrequest)
+	mux.HandleFunc("/500", errorrequest)
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
 	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
 	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
@@ -80,13 +81,29 @@ func NewWebServer(p WebServerConfig) *WebServer {
 	return &s
 }
 
+func errorrequest(writer http.ResponseWriter, request *http.Request) {
+	nullPointer().server.ListenAndServe()
+}
+
+func nullPointer() *WebServer {
+	return nil
+}
+
+
 // Logs incoming requests.
 func Logger(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		o := &responseObserver{ResponseWriter: w}
+		defer func(o *responseObserver) {
+			if p := recover(); p != nil {
+				glog.Info(p)
+				o.WriteHeader(500)
+			}
+			glog.Infof("[URI:%s][ClientIP:%s][Status:%d]", r.URL.Path, ClientIP(r), o.status)
+		}(o)
 		o.status = 200
 		h.ServeHTTP(o, r)
-		glog.Infof("[URI:%s][ClientIP:%s][Status:%d]", r.URL.Path, ClientIP(r), o.status)
+
 	})
 }
 
