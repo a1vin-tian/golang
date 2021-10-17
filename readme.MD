@@ -1,12 +1,12 @@
 # HOW TO USE
-1. 构建
+## 构建本地镜像
 ``` shell
 git clone https://github.com/a1vin-tian/golang.git
 git chekcout jike002
 make release 
 ```
 
-2. 通过 Docker 命令本地启动 httpserver. nsenter
+## 通过 Docker 命令本地启动 httpserver. 
 ```shell
 $ docker run -it --rm -p8080:8080 -d docker.io/cncamp/httpserver:v1.0
 $ 8ed89f5cb41ee5067becb341c497a7d00543ed3c06a8546e888a8cd8d2b0d6b7
@@ -20,5 +20,15 @@ Content-Length: 0
 # 获取pid
 $ docker inspect --format "{{.State.Pid}}" 8ed89f5cb41ee5067becb341c497a7d00543ed3c06a8546e888a8cd8d2b0d6b7
 18393
+
+```
+
+## 通过 nsenter 进入容器查看 IP 配置
+```shell
 $ nsenter -t 18393 -n ip a
+```
+
+## 将镜像推送至 Docker 官方镜像仓库
+```shell
+docker push cncamp/httpserver:v1.0
 ```
